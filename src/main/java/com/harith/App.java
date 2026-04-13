@@ -1,27 +1,52 @@
-package com.harith;
+package com.example;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.time.Duration;
 
 public class App {
-
     public static void main(String[] args) {
 
-        WebDriver driver = new ChromeDriver();
+        // 🔥 Headless setup (MANDATORY for Jenkins)
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--window-size=1920,1080");
 
+        WebDriver driver = new ChromeDriver(options);
 
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-        driver.get("https://practicetestautomation.com/practice-test-login/");
+        try {
+            // Open website
+            driver.get("https://practicetestautomation.com/practice-test-login/");
 
-        driver.findElement(By.id("username")).sendKeys("student");
-        driver.findElement(By.id("password")).sendKeys("Password123");
-        driver.findElement(By.id("submit")).click();
+            // Enter username
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username")))
+                    .sendKeys("student");
 
-        String heading = driver.findElement(By.tagName("h1")).getText();
-        System.out.println("Page Heading: " + heading);
+            // Enter password
+            driver.findElement(By.id("password")).sendKeys("Password123");
 
+            // Click login
+            driver.findElement(By.id("submit")).click();
+
+            // Wait for logout button
+            wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Log out")))
+                    .click();
+
+            System.out.println("✅ Login and logout successful!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
     }
 }
